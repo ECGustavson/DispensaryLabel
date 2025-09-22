@@ -1,0 +1,40 @@
+<Page
+    x:Class="DispensaryLabel.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DispensaryLabel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Margin="20" Padding="100,100,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Strain selection -->
+        <StackPanel Grid.Row="0" Spacing="10">
+            <TextBlock Text="Select Strain" FontSize="18" FontWeight="Bold"/>
+            <ComboBox x:Name="StrainComboBox" PlaceholderText="Choose a strain" Width="300" HorizontalAlignment="Left" SelectionChanged="StrainComboBox_SelectionChanged"/>
+        </StackPanel>
+
+        <!-- Strain details display -->
+        <StackPanel Grid.Row="1" Spacing="10" Margin="0,20,0,0">
+            <TextBlock Text="Strain Details" FontSize="18" FontWeight="Bold"/>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Type:" FontWeight="SemiBold"/>
+                <TextBlock x:Name="StrainType" Text="(Type will load here)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="THC%:" FontWeight="SemiBold"/>
+                <TextBlock x:Name="ThcPercentage" Text="(THC% will load here)"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <TextBlock Text="Hyperlink:" FontWeight="SemiBold"/>
+                <HyperlinkButton x:Name="StrainHyperlink" Content="(Link will load here)" NavigateUri="https://example.com"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

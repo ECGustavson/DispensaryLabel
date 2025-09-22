@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DispensaryLabel (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "DispensaryLabel (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

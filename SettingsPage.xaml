@@ -1,0 +1,35 @@
+<Page
+    x:Class="DispensaryLabel.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:DispensaryLabel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel Spacing="10" Padding="20">
+        <TextBlock Text="Company Address" FontWeight="Bold"/>
+        <TextBox x:Name="CompanyAddress" PlaceholderText="Enter company address" Width="300" HorizontalAlignment="Left"/>
+
+        <TextBlock Text="Strains CSV File" FontWeight="Bold"/>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBox x:Name="CsvFilePath" IsReadOnly="True" PlaceholderText="No file selected" Width="300"/>
+            <Button Content="Browse" Click="BrowseCsv_Click"/>
+        </StackPanel>
+
+        <TextBlock Text="Printer COM Port" FontWeight="Bold"/>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <ComboBox x:Name="PrinterComPorts" PlaceholderText="Select COM port" Width="200"/>
+            <Button Content="Test Printer" Click="TestPrinter_Click"/>
+        </StackPanel>
+
+        <TextBlock Text="Scale COM Port" FontWeight="Bold"/>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <ComboBox x:Name="ScaleComPorts" PlaceholderText="Select COM port" Width="200"/>
+            <Button Content="Test Scale" Click="TestScale_Click"/>
+        </StackPanel>
+
+        <Button Content="Save Settings" Click="SaveSettings_Click"/>
+    </StackPanel>
+</Page>
