@@ -8,9 +8,53 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel Spacing="10" Padding="20">
-        <TextBlock Text="Edit Strains CSV" FontSize="18" FontWeight="Bold"/>
-        <TextBox x:Name="CsvEditor" AcceptsReturn="True" Height="300" Width="400" PlaceholderText="Edit CSV content here (one strain per line)"/>
-        <Button Content="Save Changes" Click="SaveCsv_Click"/>
-    </StackPanel>
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Strain selection -->
+        <StackPanel Grid.Row="0" Spacing="10">
+            <TextBlock Text="Select Strain to Edit" FontSize="18" FontWeight="Bold"/>
+            <ComboBox x:Name="StrainComboBox" PlaceholderText="Choose a strain" Width="300" HorizontalAlignment="Left" SelectionChanged="StrainComboBox_SelectionChanged"/>
+        </StackPanel>
+
+        <!-- Edit fields -->
+        <StackPanel x:Name="EditPanel" Grid.Row="1" Spacing="10" Margin="0,20,0,0" Visibility="Collapsed">
+            <TextBlock Text="Edit Strain Details" FontSize="16" FontWeight="Bold"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="Name:" Width="100" VerticalAlignment="Center"/>
+                <TextBox x:Name="NameTextBox" Width="300" PlaceholderText="Strain name"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="Type:" Width="100" VerticalAlignment="Center"/>
+                <ComboBox x:Name="TypeComboBox" Width="300" PlaceholderText="Select type">
+                    <x:String>Sativa</x:String>
+                    <x:String>Hybrid</x:String>
+                    <x:String>Indica</x:String>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="THC%:" Width="100" VerticalAlignment="Center"/>
+                <TextBox x:Name="ThcTextBox" Width="300" PlaceholderText="THC percentage"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="Hyperlink:" Width="100" VerticalAlignment="Center"/>
+                <TextBox x:Name="HyperlinkTextBox" Width="300" PlaceholderText="Hyperlink URL"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="0,20,0,0">
+            <Button Content="Add New" Click="AddNew_Click"/>
+            <Button Content="Save Changes" Click="SaveChanges_Click"/>
+            <Button Content="Delete" Click="Delete_Click"/>
+        </StackPanel>
+    </Grid>
 </Page>
