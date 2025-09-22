@@ -113,6 +113,8 @@ namespace DispensaryLabel
             }
         }
 
+        // Update TestScale_Click in SettingsPage.xaml.cs to match parsing
+
         private async void TestScale_Click(object sender, RoutedEventArgs e)
         {
             string comPort = ScaleComPorts.SelectedItem as string;
@@ -124,15 +126,28 @@ namespace DispensaryLabel
 
             try
             {
-                using (var serialPort = new SerialPort(comPort, 9600)) // Adjust baud rate as needed
+                using (var serialPort = new SerialPort(comPort, 9600, Parity.None, 8, StopBits.One))
                 {
                     serialPort.Open();
-                    // For scales, often need to send a command to read weight, e.g., 'W' or specific protocol
-                    // Assuming a simple scale that responds to 'W' with weight
-                    serialPort.Write("W\r\n");
-                    string response = serialPort.ReadLine(); // Read response
+                    serialPort.Write("SI\r\n");
+                    string response = serialPort.ReadExisting();
                     serialPort.Close();
-                    await ShowDialog("Success", $"Scale test successful! Response: {response}");
+
+                    // Parse for test
+                    if (response.Length >= 19 && response.StartsWith("SI "))
+                    {
+                        char stability = response[3];
+                        string status = (stability == ' ') ? "Stable" : "Unstable";
+                        char signChar = response[5];
+                        string sign = (signChar == '-') ? "-" : "";
+                        string massStr = response.Substring(6, 9).Trim();
+                        string unit = response.Substring(15, 4).Trim();
+                        await ShowDialog("Success", $"Scale test successful! {status} weight: {sign + massStr} {unit}");
+                    }
+                    else
+                    {
+                        await ShowDialog("Success", $"Scale response: {response}");
+                    }
                 }
             }
             catch (Exception ex)

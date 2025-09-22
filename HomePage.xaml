@@ -11,6 +11,7 @@
     <Grid Margin="20" Padding="100,100,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -20,8 +21,14 @@
             <ComboBox x:Name="StrainComboBox" PlaceholderText="Choose a strain" Width="300" HorizontalAlignment="Left" SelectionChanged="StrainComboBox_SelectionChanged"/>
         </StackPanel>
 
-        <!-- Strain details display -->
+        <!-- Weight input/display -->
         <StackPanel Grid.Row="1" Spacing="10" Margin="0,20,0,0">
+            <TextBlock Text="Weight (g)" FontSize="18" FontWeight="Bold"/>
+            <TextBox x:Name="WeightTextBox" PlaceholderText="Enter or read weight" Width="300" HorizontalAlignment="Left"/>
+        </StackPanel>
+
+        <!-- Strain details display -->
+        <StackPanel Grid.Row="2" Spacing="10" Margin="0,20,0,0">
             <TextBlock Text="Strain Details" FontSize="18" FontWeight="Bold"/>
             <StackPanel Orientation="Horizontal" Spacing="5">
                 <TextBlock Text="Type:" FontWeight="SemiBold"/>

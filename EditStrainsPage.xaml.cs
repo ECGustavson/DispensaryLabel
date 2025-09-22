@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Storage;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DispensaryLabel
 {

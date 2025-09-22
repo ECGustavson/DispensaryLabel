@@ -1,32 +1,51 @@
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.Storage.AccessCache;
 
 namespace DispensaryLabel
 {
     public sealed partial class HomePage : Page
     {
         private List<Strain> strains = new List<Strain>();
+        private SerialPort scalePort;
+        private DispatcherTimer scaleTimer;
+        private bool isScaleConnected = false;
 
         public HomePage()
         {
             this.InitializeComponent();
             this.Loaded += HomePage_Loaded;
+            this.Unloaded += HomePage_Unloaded;
         }
 
-        // In HomePage.xaml.cs - Update LoadStrainsFromCsv to use the saved token/path
-
-        private async void HomePage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        private async void HomePage_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadStrainsFromCsv();
+            await LoadStrainsFromCsv();
+            await InitializeScaleAsync();
+            if (isScaleConnected)
+            {
+                WeightTextBox.IsReadOnly = true;
+                StartScalePolling();
+            }
+            else
+            {
+                WeightTextBox.IsReadOnly = false;
+            }
         }
 
-        private async void LoadStrainsFromCsv()
+        private void HomePage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            StopScalePolling();
+            CloseScalePort();
+        }
+
+        private async Task LoadStrainsFromCsv()
         {
             try
             {
@@ -50,38 +69,9 @@ namespace DispensaryLabel
             }
             catch (Exception ex)
             {
-                // Handle errors
                 var dialog = new ContentDialog { Title = "Error", Content = ex.Message, CloseButtonText = "OK" };
                 dialog.XamlRoot = this.XamlRoot;
                 await dialog.ShowAsync();
-            }
-        }
-
-        private async Task<StorageFile> GetCsvFileAsync()
-        {
-            var settings = ApplicationData.Current.LocalSettings;
-            var csvToken = settings.Values["CsvFileToken"] as string;
-
-            if (!string.IsNullOrEmpty(csvToken) && StorageApplicationPermissions.FutureAccessList.ContainsItem(csvToken))
-            {
-                return await StorageApplicationPermissions.FutureAccessList.GetFileAsync(csvToken);
-            }
-            else
-            {
-                // Fallback to bundled default
-                var folder = ApplicationData.Current.LocalFolder;
-                StorageFile file;
-                try
-                {
-                    file = await folder.GetFileAsync("strains.csv");
-                }
-                catch (FileNotFoundException)
-                {
-                    var uri = new Uri("ms-appx:///Assets/strains.csv");
-                    var sourceFile = await StorageFile.GetFileFromApplicationUriAsync(uri);
-                    file = await sourceFile.CopyAsync(folder, "strains.csv", NameCollisionOption.ReplaceExisting);
-                }
-                return file;
             }
         }
 
@@ -101,23 +91,119 @@ namespace DispensaryLabel
                     }
                     catch (UriFormatException)
                     {
-                        // Handle invalid URI: Set to null (disables navigation) and optionally update content
                         StrainHyperlink.NavigateUri = null;
                         StrainHyperlink.Content = $"{selectedStrain.Hyperlink} (Invalid URL)";
-                        // Optionally show a dialog or log the error
                     }
                 }
             }
         }
 
+        private async Task InitializeScaleAsync()
+        {
+            var settings = ApplicationData.Current.LocalSettings;
+            string comPort = settings.Values["ScaleComPort"] as string;
+            if (string.IsNullOrEmpty(comPort))
+            {
+                return;
+            }
 
-    }
+            try
+            {
+                scalePort = new SerialPort(comPort, 9600, Parity.None, 8, StopBits.One);
+                scalePort.ReadTimeout = 500;
+                scalePort.WriteTimeout = 500;
+                scalePort.Open();
+                isScaleConnected = true;
+            }
+            catch (Exception ex)
+            {
+                isScaleConnected = false;
+                await ShowDialog("Scale Connection Error", $"Failed to connect to scale: {ex.Message}");
+            }
+        }
 
-    public class Strain
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Thc { get; set; }
-        public string Hyperlink { get; set; }
+        private void StartScalePolling()
+        {
+            if (scaleTimer == null)
+            {
+                scaleTimer = new DispatcherTimer();
+                scaleTimer.Interval = TimeSpan.FromSeconds(1); // Poll every 1 second
+                scaleTimer.Tick += async (s, e) => await ReadScaleWeightAsync();
+            }
+            scaleTimer.Start();
+        }
+
+        private void StopScalePolling()
+        {
+            scaleTimer?.Stop();
+        }
+
+        private void CloseScalePort()
+        {
+            if (scalePort != null && scalePort.IsOpen)
+            {
+                scalePort.Close();
+            }
+        }
+
+        private async Task ReadScaleWeightAsync()
+        {
+            if (!isScaleConnected || scalePort == null || !scalePort.IsOpen)
+            {
+                return;
+            }
+
+            try
+            {
+                scalePort.Write("SI\r\n"); // Send immediate weight command
+                string response = scalePort.ReadExisting(); // Use ReadExisting to get all data, as ReadLine may not work if no LF
+
+                if (response.Length >= 19 && response.StartsWith("SI "))
+                {
+                    char stability = response[3]; // 0-based index 3 (1-based position 4)
+                    if (stability == ' ') // Stable
+                    {
+                        char signChar = response[5]; // index 5 (position 6)
+                        string sign = (signChar == '-') ? "-" : "";
+                        string massStr = response.Substring(6, 9).Trim(); // index 6-14 (positions 7-15)
+                        string unit = response.Substring(15, 4).Trim(); // index 15 is space (16), then 16-18 unit
+
+                        if (double.TryParse(sign + massStr, out double weight))
+                        {
+                            // Assume unit is 'g'; if 'kg', convert to g if needed
+                            if (unit == "kg")
+                            {
+                                weight *= 1000;
+                            }
+                            WeightTextBox.Text = weight.ToString("F3"); // Format to 3 decimal places or as needed
+                        }
+                    }
+                    // If unstable ('?'), do not update the TextBox
+                }
+                else if (response.Contains("SI_I"))
+                {
+                    // Command not accessible; ignore
+                }
+            }
+            catch (Exception ex)
+            {
+                isScaleConnected = false;
+                WeightTextBox.IsReadOnly = false;
+                StopScalePolling();
+                await ShowDialog("Scale Read Error", $"Failed to read weight: {ex.Message}");
+            }
+        }
+
+        private async Task ShowDialog(string title, string content)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                CloseButtonText = "OK"
+            };
+            dialog.XamlRoot = this.XamlRoot;
+            await dialog.ShowAsync();
+        }
     }
 }
