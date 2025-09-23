@@ -15,6 +15,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;  // Added for ApplicationData
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -36,6 +37,23 @@ namespace DispensaryLabel
         {
             m_window = new MainWindow();
             MainWindow = m_window;
+
+            // Load and apply saved theme
+            var settings = ApplicationData.Current.LocalSettings;
+            var savedTheme = settings.Values["AppTheme"] as string;
+            var root = m_window.Content as FrameworkElement;
+            if (root != null)
+            {
+                if (savedTheme == "Dark")
+                {
+                    root.RequestedTheme = ElementTheme.Dark;
+                }
+                else
+                {
+                    root.RequestedTheme = ElementTheme.Light;  // Default to Light if not set
+                }
+            }
+
             m_window.Activate();
         }
 

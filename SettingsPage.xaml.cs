@@ -52,6 +52,10 @@ namespace DispensaryLabel
 
             PrinterComPorts.SelectedItem = settings.Values["PrinterComPort"] as string;
             ScaleComPorts.SelectedItem = settings.Values["ScaleComPort"] as string;
+
+            // Load dark mode setting
+            var savedTheme = settings.Values["AppTheme"] as string;
+            DarkModeToggle.IsOn = (savedTheme == "Dark");
         }
 
         private async void BrowseCsv_Click(object sender, RoutedEventArgs e)
@@ -86,6 +90,24 @@ namespace DispensaryLabel
             settings.Values["ScaleComPort"] = ScaleComPorts.SelectedItem as string;
             // Csv token is saved during browse, no need here unless changed
             // Optionally show confirmation
+        }
+
+        // Added event handler for dark mode toggle
+        private void DarkModeToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            var toggle = sender as ToggleSwitch;
+            if (toggle == null) return;
+
+            var settings = ApplicationData.Current.LocalSettings;
+            var theme = toggle.IsOn ? "Dark" : "Light";
+            settings.Values["AppTheme"] = theme;
+
+            // Apply theme app-wide
+            var root = App.MainWindow.Content as FrameworkElement;
+            if (root != null)
+            {
+                root.RequestedTheme = toggle.IsOn ? ElementTheme.Dark : ElementTheme.Light;
+            }
         }
 
         private async void TestPrinter_Click(object sender, RoutedEventArgs e)
@@ -126,7 +148,6 @@ namespace DispensaryLabel
                 await ShowDialog("Error", $"Printer test failed: {ex.Message}");
             }
         }
-
 
         private async void TestScale_Click(object sender, RoutedEventArgs e)
         {

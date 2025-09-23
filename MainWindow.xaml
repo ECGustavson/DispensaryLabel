@@ -15,12 +15,14 @@
                     IsSettingsVisible="False"
                     CompactPaneLength="48"
                     OpenPaneLength="200"
-                    ItemInvoked="NavView_ItemInvoked">
+                    ItemInvoked="NavView_ItemInvoked"
+                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <!-- Added this to adapt to dark/light mode -->
 
         <NavigationView.MenuItems>
             <NavigationViewItem Icon="Home" Content="Home" Tag="Home"/>
             <NavigationViewItem Icon="Edit" Content="Edit Strains" Tag="EditStrains"/>
-            <NavigationViewItem Icon="Admin" Content="Settings" Tag="Settings"/>
+            <NavigationViewItem Icon="Setting" Content="Settings" Tag="Settings"/>
             <NavigationViewItem Icon="People" Content="Login" Tag="Login"/>
         </NavigationView.MenuItems>
 

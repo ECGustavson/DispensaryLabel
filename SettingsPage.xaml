@@ -30,6 +30,10 @@
             <Button Content="Test Scale" Click="TestScale_Click"/>
         </StackPanel>
 
+        <!-- Added Dark Mode Toggle -->
+        <TextBlock Text="Dark Mode" FontWeight="Bold"/>
+        <ToggleSwitch x:Name="DarkModeToggle" OffContent="Light" OnContent="Dark" Toggled="DarkModeToggle_Toggled"/>
+
         <Button Content="Save Settings" Click="SaveSettings_Click"/>
     </StackPanel>
 </Page>
