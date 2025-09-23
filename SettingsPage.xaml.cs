@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO.Ports;
+using System.Text;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
@@ -96,13 +97,26 @@ namespace DispensaryLabel
                 return;
             }
 
+            // Sample EZPL for test
+            StringBuilder ezpl = new StringBuilder();
+            ezpl.AppendLine("^Q203,0,0");
+            ezpl.AppendLine("^W406");
+            ezpl.AppendLine("^H10");
+            ezpl.AppendLine("^P1");
+            ezpl.AppendLine("^S4");
+            ezpl.AppendLine("^L");
+            ezpl.AppendLine("A0,10,10,1,1,0,0,Test Label");
+            ezpl.AppendLine("A0,10,50,1,1,0,0,From App");
+            ezpl.AppendLine("E");
+
+            string testCommand = ezpl.ToString();
+
             try
             {
-                using (var serialPort = new SerialPort(comPort, 9600)) // Adjust baud rate as needed
+                using (var serialPort = new SerialPort(comPort, 9600, Parity.None, 8, StopBits.One))
                 {
                     serialPort.Open();
-                    // Send a test command if known, e.g., for label printer, perhaps a simple text
-                    serialPort.Write("Test print from app\r\n");
+                    serialPort.Write(testCommand);
                     serialPort.Close();
                 }
                 await ShowDialog("Success", "Printer test successful!");
@@ -113,7 +127,6 @@ namespace DispensaryLabel
             }
         }
 
-        // Update TestScale_Click in SettingsPage.xaml.cs to match parsing
 
         private async void TestScale_Click(object sender, RoutedEventArgs e)
         {

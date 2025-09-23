@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel Spacing="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <StackPanel Spacing="10" Padding="20" HorizontalAlignment="Left" MaxWidth="400" >
         <TextBlock Text="Login" FontSize="18" FontWeight="Bold"/>
         <TextBox PlaceholderText="Username" Width="200"/>
         <PasswordBox PlaceholderText="Password" Width="200"/>

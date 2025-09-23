@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
@@ -95,6 +96,93 @@ namespace DispensaryLabel
                         StrainHyperlink.Content = $"{selectedStrain.Hyperlink} (Invalid URL)";
                     }
                 }
+            }
+        }
+
+        private async void PrintLabel_Click(object sender, RoutedEventArgs e)
+        {
+            if (StrainComboBox.SelectedItem == null || string.IsNullOrWhiteSpace(WeightTextBox.Text))
+            {
+                await ShowDialog("Error", "Please select a strain and enter weight.");
+                return;
+            }
+
+            var selectedName = StrainComboBox.SelectedItem as string;
+            var selectedStrain = strains.FirstOrDefault(s => s.Name == selectedName);
+            var weight = WeightTextBox.Text;
+            var settings = ApplicationData.Current.LocalSettings;
+            var companyAddress = settings.Values["CompanyAddress"] as string ?? "Default Address";
+            var date = DateTime.Now.ToString("yyyy-MM-dd");
+
+            // Build label data
+            string strainName = selectedStrain.Name;
+            string type = selectedStrain.Type;
+            string thc = selectedStrain.Thc;
+            string hyperlink = selectedStrain.Hyperlink;
+
+            // Generate EZPL command string (for 2"x1" label at 203 dpi)
+            StringBuilder ezpl = new StringBuilder();
+            ezpl.AppendLine("^Q203,0,0"); // Label height 203 dots (1 inch), no gap, no offset (adjust if gaps)
+            ezpl.AppendLine("^W406"); // Label width 406 dots (2 inches)
+            ezpl.AppendLine("^H10"); // Heat 10
+            ezpl.AppendLine("^P1"); // Print 1 copy
+            ezpl.AppendLine("^S4"); // Speed 4 ips
+            ezpl.AppendLine("^L"); // Start format
+            ezpl.AppendLine($"A0,10,10,1,1,0,0,{companyAddress}"); // Company address, font A, position (10,10)
+            ezpl.AppendLine($"A0,10,50,1,1,0,0,Strain: {strainName}"); // Strain name
+            ezpl.AppendLine($"A0,10,80,1,1,0,0,Type: {type}"); // Type
+            ezpl.AppendLine($"A0,10,110,1,1,0,0,THC: {thc}%"); // THC
+            ezpl.AppendLine($"A0,10,140,1,1,0,0,Weight: {weight}g"); // Weight
+            ezpl.AppendLine($"A0,10,170,1,1,0,0,Date: {date}"); // Date
+            // QR code for hyperlink (position 250,10, auto mode, M error correction, mul 1)
+            ezpl.AppendLine($"W250,10,0,Q,M,0,1,0,{hyperlink.Length},{hyperlink}"); // QR command
+            ezpl.AppendLine("E"); // End and print
+
+            string ezplCommand = ezpl.ToString();
+
+            // Attempt to print if printer COM set
+            var printerCom = settings.Values["PrinterComPort"] as string;
+            bool printed = false;
+            if (!string.IsNullOrEmpty(printerCom))
+            {
+                try
+                {
+                    using (var printerPort = new SerialPort(printerCom, 9600, Parity.None, 8, StopBits.One))
+                    {
+                        printerPort.Open();
+                        printerPort.Write(ezplCommand);
+                        printerPort.Close();
+                        printed = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await ShowDialog("Print Error", $"Failed to print: {ex.Message}");
+                }
+            }
+
+            // Show mock-up dialog (always, or if not printed)
+            var mockContent = new StackPanel { Spacing = 5 };
+            mockContent.Children.Add(new TextBlock { Text = companyAddress });
+            mockContent.Children.Add(new TextBlock { Text = $"Strain: {strainName}" });
+            mockContent.Children.Add(new TextBlock { Text = $"Type: {type}" });
+            mockContent.Children.Add(new TextBlock { Text = $"THC: {thc}%" });
+            mockContent.Children.Add(new TextBlock { Text = $"Weight: {weight}g" });
+            mockContent.Children.Add(new TextBlock { Text = $"Date: {date}" });
+            mockContent.Children.Add(new TextBlock { Text = $"Link: {hyperlink}" }); // QR mock as text
+
+            var mockDialog = new ContentDialog
+            {
+                Title = "Label Mock-Up",
+                Content = mockContent,
+                CloseButtonText = "OK"
+            };
+            mockDialog.XamlRoot = this.XamlRoot;
+            await mockDialog.ShowAsync();
+
+            if (printed)
+            {
+                await ShowDialog("Success", "Label printed successfully.");
             }
         }
 
