@@ -215,7 +215,7 @@ namespace DispensaryLabel
             if (scaleTimer == null)
             {
                 scaleTimer = new DispatcherTimer();
-                scaleTimer.Interval = TimeSpan.FromSeconds(1); // Poll every 1 second
+                scaleTimer.Interval = TimeSpan.FromMilliseconds(500); // Poll every 1 second
                 scaleTimer.Tick += async (s, e) => await ReadScaleWeightAsync();
             }
             scaleTimer.Start();
@@ -251,6 +251,8 @@ namespace DispensaryLabel
                     char stability = response[3]; // 0-based index 3 (1-based position 4)
                     if (stability == ' ') // Stable
                     {
+                        btnPrint.IsEnabled = true;
+                        printIcon.Symbol = Symbol.Print;
                         char signChar = response[5]; // index 5 (position 6)
                         string sign = (signChar == '-') ? "-" : "";
                         string massStr = response.Substring(6, 9).Trim(); // index 6-14 (positions 7-15)
@@ -263,8 +265,14 @@ namespace DispensaryLabel
                             {
                                 weight *= 1000;
                             }
-                            WeightTextBox.Text = weight.ToString("F3"); // Format to 3 decimal places or as needed
+                            WeightTextBox.Text = weight.ToString("F2"); // Format to 3 decimal places or as needed
                         }
+                    }
+                    else
+                    {
+                        btnPrint.IsEnabled = false;
+                        printIcon.Symbol = Symbol.Cancel;
+                        WeightTextBox.Text = "Weight Unstable - Print Prohibited";
                     }
                     // If unstable ('?'), do not update the TextBox
                 }
@@ -292,6 +300,19 @@ namespace DispensaryLabel
             };
             dialog.XamlRoot = this.XamlRoot;
             await dialog.ShowAsync();
+        }
+
+        private void StrainComboBox_TextSubmitted(ComboBox sender, ComboBoxTextSubmittedEventArgs args)
+        {
+            // Check if the entered text matches any strain Name (case-insensitive for better UX; adjust if needed)
+            bool isValid = strains.Any(s => string.Equals(s.Name, args.Text, StringComparison.OrdinalIgnoreCase));
+
+            if (!isValid)
+            {
+                args.Handled = true;  // Prevent the invalid text from being committed
+                sender.Text = sender.SelectedItem?.ToString() ?? string.Empty;
+            }
+            // If valid, do nothing—filtering auto-selects the match, and SelectionChanged will fire if needed
         }
     }
 }

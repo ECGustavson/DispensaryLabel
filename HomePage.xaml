@@ -19,7 +19,7 @@
         <!-- Strain selection -->
         <StackPanel Grid.Row="0" Spacing="10">
             <TextBlock Text="Select Strain" FontSize="18" FontWeight="Bold"/>
-            <ComboBox x:Name="StrainComboBox" PlaceholderText="Choose a strain" Width="300" HorizontalAlignment="Left" SelectionChanged="StrainComboBox_SelectionChanged"/>
+            <ComboBox x:Name="StrainComboBox" PlaceholderText="Choose a strain" Width="300" HorizontalAlignment="Left" SelectionChanged="StrainComboBox_SelectionChanged" TextSubmitted="StrainComboBox_TextSubmitted" IsEditable="true"/>
         </StackPanel>
 
         <!-- Weight input/display -->
@@ -29,7 +29,10 @@
         </StackPanel>
 
         <!-- Print button -->
-        <Button Grid.Row="2" Content="Print Label" Click="PrintLabel_Click" Margin="0,20,0,0" HorizontalAlignment="Left"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,20,0,0">
+            <Button Name="btnPrint"  Content="Print Label" Click="PrintLabel_Click" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,20,0"/>
+            <SymbolIcon Symbol="Cancel" VerticalAlignment="Center" Name="printIcon"/>
+        </StackPanel>
 
         <!-- Strain details display -->
         <StackPanel Grid.Row="3" Spacing="10" Margin="0,20,0,0">
@@ -43,8 +46,8 @@
                 <TextBlock x:Name="ThcPercentage" Text="(THC% will load here)"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="5">
-                <TextBlock Text="Hyperlink:" FontWeight="SemiBold"/>
-                <HyperlinkButton x:Name="StrainHyperlink" Content="(Link will load here)" NavigateUri="https://example.com"/>
+                <TextBlock Text="Hyperlink:" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <HyperlinkButton x:Name="StrainHyperlink" Content="(Link will load here)" NavigateUri="https://example.com" VerticalAlignment="Center"/>
             </StackPanel>
         </StackPanel>
     </Grid>
