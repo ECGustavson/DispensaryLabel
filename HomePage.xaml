@@ -47,7 +47,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="5">
                 <TextBlock Text="Hyperlink:" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                <HyperlinkButton x:Name="StrainHyperlink" Content="(Link will load here)" NavigateUri="https://example.com" VerticalAlignment="Center"/>
+                <HyperlinkButton x:Name="StrainHyperlink" Content="(Link will load here)" NavigateUri="https://example.com" VerticalAlignment="Center" />
             </StackPanel>
         </StackPanel>
     </Grid>

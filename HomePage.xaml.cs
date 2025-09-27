@@ -1,3 +1,5 @@
+// HomePage.xaml.cs
+
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -112,48 +114,57 @@ namespace DispensaryLabel
             var weight = WeightTextBox.Text;
             var settings = ApplicationData.Current.LocalSettings;
             var companyAddress = settings.Values["CompanyAddress"] as string ?? "Default Address";
+            var companyName = settings.Values["CompanyName"] as string ?? "Company Name";
             var date = DateTime.Now.ToString("yyyy-MM-dd");
 
             // Build label data
             string strainName = selectedStrain.Name;
+            if (strainName.Length > 18)
+            { strainName = strainName.Substring(0, 15) + "..."; }
             string type = selectedStrain.Type;
             string thc = selectedStrain.Thc;
             string hyperlink = selectedStrain.Hyperlink;
-
-            // Generate EZPL command string (for 2"x1" label at 203 dpi)
+            // Generate EZPL command string (for 2"x1" label at 203 dpi, in mm)
             StringBuilder ezpl = new StringBuilder();
-            ezpl.AppendLine("^Q203,0,0"); // Label height 203 dots (1 inch), no gap, no offset (adjust if gaps)
-            ezpl.AppendLine("^W406"); // Label width 406 dots (2 inches)
-            ezpl.AppendLine("^H10"); // Heat 10
+            ezpl.AppendLine("^Q75,3"); // Label height 25 mm (~1 inch), gap 3 mm (adjust gap if no gaps/black marks: use 0 for continuous)
+            ezpl.AppendLine("^W50"); // Label width 51 mm (~2 inches)
+            ezpl.AppendLine("^H7"); // Heat  (adjust 1-30 if print is faint/blank)
             ezpl.AppendLine("^P1"); // Print 1 copy
-            ezpl.AppendLine("^S4"); // Speed 4 ips
+            ezpl.AppendLine("^S2"); // Speed in ips
+            ezpl.AppendLine("^AD"); // Set direct thermal mode (no ribbon); use ^AT if using ribbon/thermal transfer
+            ezpl.AppendLine("^C1"); //Number of copies per label
+            ezpl.AppendLine("^R0"); // Row column adjustment
+            ezpl.AppendLine("~Q+0"); // Row column adjustment
+            ezpl.AppendLine("^O0"); // Disable the peel off dispenser
+            ezpl.AppendLine("^D0"); // Number of labels per cut (0 to disable)
+            ezpl.AppendLine("^E18"); // Stop position setting (in mm)
+            ezpl.AppendLine("~R255"); // Rotates and returns label position. Not clear on how this works. See EZPL manual
+            ezpl.AppendLine("^XSET,ROTATION,0"); // Row Offset Adjustment
             ezpl.AppendLine("^L"); // Start format
-            ezpl.AppendLine($"A0,10,10,1,1,0,0,{companyAddress}"); // Company address, font A, position (10,10)
-            ezpl.AppendLine($"A0,10,50,1,1,0,0,Strain: {strainName}"); // Strain name
-            ezpl.AppendLine($"A0,10,80,1,1,0,0,Type: {type}"); // Type
-            ezpl.AppendLine($"A0,10,110,1,1,0,0,THC: {thc}%"); // THC
-            ezpl.AppendLine($"A0,10,140,1,1,0,0,Weight: {weight}g"); // Weight
-            ezpl.AppendLine($"A0,10,170,1,1,0,0,Date: {date}"); // Date
-            // QR code for hyperlink (position 250,10, auto mode, M error correction, mul 1)
-            ezpl.AppendLine($"W250,10,0,Q,M,0,1,0,{hyperlink.Length},{hyperlink}"); // QR command
+            ezpl.AppendLine($"AD,385,18,1,1,0,1E,THC-A HEMP FLOWER");
+            ezpl.AppendLine($"AB,339,18,1,1,0,1E,CONTAINS <0.3% DELTA-9 THC");
+             
+            ezpl.AppendLine($"AD,257,18,1,1,0,1E,{strainName.ToUpper()}"); // Strain name (positions in dots; scale from mm: e.g., 10 mm = 80 dots)
+            ezpl.AppendLine($"AC,208,18,1,1,0,1E,{type.ToUpper()} - {thc}% THC");
+            ezpl.AppendLine($"AC,160,18,1,1,0,1E,NET WEIGHT: {weight}g");
+            ezpl.AppendLine($"AB,77,18,1,1,0,1E,PACKAGED ON: {date} by {companyName}");
+            ezpl.AppendLine($"AB,37,18,1,1,0,1E,{companyAddress}");
+            // QR code for hyperlink (position in dots; syntax corrected: mode=0 (normal QR), error correction=M (medium), mask=0 (auto), mul=1, rotate=0)
+            ezpl.AppendLine($"W364,382,5,2,M,8,8,{hyperlink.Length},1"); // x=200 dots (~25 mm), y=80 dots; adjust position to fit
+            ezpl.AppendLine($"{hyperlink}");
             ezpl.AppendLine("E"); // End and print
 
             string ezplCommand = ezpl.ToString();
 
-            // Attempt to print if printer COM set
-            var printerCom = settings.Values["PrinterComPort"] as string;
+            // Attempt to print if printer name set
+            var printerName = settings.Values["PrinterName"] as string;
             bool printed = false;
-            if (!string.IsNullOrEmpty(printerCom))
+            if (!string.IsNullOrEmpty(printerName))
             {
                 try
                 {
-                    using (var printerPort = new SerialPort(printerCom, 9600, Parity.None, 8, StopBits.One))
-                    {
-                        printerPort.Open();
-                        printerPort.Write(ezplCommand);
-                        printerPort.Close();
-                        printed = true;
-                    }
+                    RawPrinterHelper.SendStringToPrinter(printerName, ezplCommand);
+                    printed = true;
                 }
                 catch (Exception ex)
                 {
@@ -161,7 +172,7 @@ namespace DispensaryLabel
                 }
             }
 
-            // Show mock-up dialog (always, or if not printed)
+/*            // Show mock-up dialog (always, or if not printed)
             var mockContent = new StackPanel { Spacing = 5 };
             mockContent.Children.Add(new TextBlock { Text = companyAddress });
             mockContent.Children.Add(new TextBlock { Text = $"Strain: {strainName}" });
@@ -179,7 +190,7 @@ namespace DispensaryLabel
             };
             mockDialog.XamlRoot = this.XamlRoot;
             await mockDialog.ShowAsync();
-
+*/
             if (printed)
             {
                 await ShowDialog("Success", "Label printed successfully.");

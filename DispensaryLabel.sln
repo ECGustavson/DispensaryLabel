@@ -5,6 +5,11 @@ VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispensaryLabel", "DispensaryLabel.csproj", "{670C492E-0F13-4E79-AA60-C85EC2FED4F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B055EE2-DA27-4FCD-9691-489F668C032B}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Downloads\labelprinter.ico = ..\..\..\Downloads\labelprinter.ico
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64

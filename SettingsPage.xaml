@@ -22,9 +22,9 @@
             <Button Content="Browse" Click="BrowseCsv_Click"/>
         </StackPanel>
 
-        <TextBlock Text="Printer COM Port" FontWeight="Bold"/>
+        <TextBlock Text="Printer Select" FontWeight="Bold"/>
         <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
-            <ComboBox x:Name="PrinterComPorts" PlaceholderText="Select COM port" Width="200"/>
+            <ComboBox x:Name="PrinterList" PlaceholderText="Select Printer" Width="200"/>
             <Button Content="Test Printer" Click="TestPrinter_Click"/>
         </StackPanel>
 
