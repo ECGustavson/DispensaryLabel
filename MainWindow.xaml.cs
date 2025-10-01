@@ -11,6 +11,7 @@ namespace DispensaryLabel
         public MainWindow()
         {
             this.InitializeComponent();
+            //ContentFrame.Navigate(typeof(SettingsPage));
             ContentFrame.Navigate(typeof(HomePage)); // Default to Home
 
             // Customize title bar with fixed color (independent of theme)

@@ -13,11 +13,15 @@ using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using System.Drawing.Printing;
+using System.Security.Cryptography.X509Certificates;
 
 namespace DispensaryLabel
 {
     public sealed partial class SettingsPage : Page
     {
+        public int labelHeight;
+        public int labelWidth;
+        public int labelGap;
         public SettingsPage()
         {
             this.InitializeComponent();
@@ -65,6 +69,16 @@ namespace DispensaryLabel
             // Load dark mode setting
             var savedTheme = settings.Values["AppTheme"] as string;
             DarkModeToggle.IsOn = (savedTheme == "Dark");
+
+            // Load Printer Settings
+            labelHeight = settings.Values["LabelHeight"] as int? ?? 75;
+            spinboxLabelHeight.Value = labelHeight;
+            labelWidth = settings.Values["LabelWidth"] as int? ?? 50;
+            spinboxLabelWidth.Value = labelWidth;
+            labelGap = settings.Values["LabelGap"] as int? ?? 3;
+            spinboxLabelGap.Value = labelGap;
+
+
         }
 
         private async void BrowseCsv_Click(object sender, RoutedEventArgs e)
@@ -98,6 +112,7 @@ namespace DispensaryLabel
             settings.Values["CompanyAddress"] = CompanyAddress.Text;
             settings.Values["PrinterName"] = PrinterList.SelectedItem as string;
             settings.Values["ScaleComPort"] = ScaleComPorts.SelectedItem as string;
+            settings.Values["LabelHeight"] = spinboxLabelHeight.Value;
             // Csv token is saved during browse, no need here unless changed
             // Optionally show confirmation
         }

@@ -8,36 +8,96 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel Spacing="10" Padding="20">
 
-        <TextBlock Text="Company Name" FontWeight="Bold"/>
-        <TextBox x:Name="CompanyName" PlaceholderText="Enter company name" Width="300" HorizontalAlignment="Left" Margin="0,0,0,20"/>
+    <StackPanel Spacing="10" Padding="20" Orientation="Horizontal">
+        <!--#mainsettings-->
+        <StackPanel Spacing="10" Padding="20">
 
-        <TextBlock Text="Company Address" FontWeight="Bold"/>
-        <TextBox x:Name="CompanyAddress" PlaceholderText="Enter company address" Width="300" HorizontalAlignment="Left" Margin="0,0,0,20"/>
+            <TextBlock Text="Company Name" FontWeight="Bold"/>
+            <TextBox x:Name="CompanyName" PlaceholderText="Enter company name" Width="300" HorizontalAlignment="Left" Margin="0,0,0,20"/>
 
-        <TextBlock Text="Strains CSV File" FontWeight="Bold" />
-        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20" >
-            <TextBox x:Name="CsvFilePath" IsReadOnly="True" PlaceholderText="No file selected" Width="300"/>
-            <Button Content="Browse" Click="BrowseCsv_Click"/>
+            <TextBlock Text="Company Address" FontWeight="Bold"/>
+            <TextBox x:Name="CompanyAddress" PlaceholderText="Enter company address" Width="300" HorizontalAlignment="Left" Margin="0,0,0,20"/>
+
+            <TextBlock Text="Strains CSV File" FontWeight="Bold" />
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20" >
+                <TextBox x:Name="CsvFilePath" IsReadOnly="True" PlaceholderText="No file selected" Width="300"/>
+                <Button Content="Browse" Click="BrowseCsv_Click"/>
+            </StackPanel>
+
+            <TextBlock Text="Printer Select" FontWeight="Bold"/>
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
+                <ComboBox x:Name="PrinterList" PlaceholderText="Select Printer" Width="200"/>
+                <Button Content="Test Printer" Click="TestPrinter_Click"/>
+            </StackPanel>
+
+            <TextBlock Text="Scale COM Port" FontWeight="Bold"/>
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
+                <ComboBox x:Name="ScaleComPorts" PlaceholderText="Select COM port" Width="200"/>
+                <Button Content="Test Scale" Click="TestScale_Click"/>
+            </StackPanel>
+
+            <!-- Added Dark Mode Toggle -->
+            <TextBlock Text="Dark Mode" FontWeight="Bold"/>
+            <ToggleSwitch x:Name="DarkModeToggle" OffContent="Light" OnContent="Dark" Toggled="DarkModeToggle_Toggled"/>
+
+            <Button Content="Save Settings" Click="SaveSettings_Click"/>
         </StackPanel>
+        <!--#printersettings-->
+        <Grid ColumnSpacing="25" RowSpacing="10" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Row 0: Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 1 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 2 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 3 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 4 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 5 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 6 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 7 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 8 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 9 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 10 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 11 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 12 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 13 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 14 -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Column 0 -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Column 1 -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Column 2 -->
+            </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Printer Select" FontWeight="Bold"/>
-        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
-            <ComboBox x:Name="PrinterList" PlaceholderText="Select Printer" Width="200"/>
-            <Button Content="Test Printer" Click="TestPrinter_Click"/>
-        </StackPanel>
+            <TextBlock Text="Printer Settings" FontWeight="Bold" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
+            <TextBlock Text="Paper Settings" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center"/>
+            <NumberBox Header="Height (mm)" Name="spinboxLabelHeight" SpinButtonPlacementMode="Compact" Grid.Column="0" Grid.Row="2"/>
+            <NumberBox Header="Width (mm)" Name="spinboxLabelWidth"  SpinButtonPlacementMode="Compact" Grid.Column="1" Grid.Row="2"/>
+            <NumberBox Header="Gap (mm)" Name="spinboxLabelGap" SpinButtonPlacementMode="Compact" Grid.Column="2" Grid.Row="2"/>
 
-        <TextBlock Text="Scale COM Port" FontWeight="Bold"/>
-        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
-            <ComboBox x:Name="ScaleComPorts" PlaceholderText="Select COM port" Width="200"/>
-            <Button Content="Test Scale" Click="TestScale_Click"/>
-        </StackPanel>
-
-        <!-- Added Dark Mode Toggle -->
-        <TextBlock Text="Dark Mode" FontWeight="Bold"/>
-        <ToggleSwitch x:Name="DarkModeToggle" OffContent="Light" OnContent="Dark" Toggled="DarkModeToggle_Toggled"/>
-
-        <Button Content="Save Settings" Click="SaveSettings_Click"/>
+            <TextBlock Text="Line 1 Data" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <NumberBox Header="X Pos" SpinButtonPlacementMode="Compact" Grid.Column="0" Grid.Row="4"/>
+            <NumberBox Header="Y Pos" SpinButtonPlacementMode="Compact" Grid.Column="1" Grid.Row="4"/>
+            <NumberBox Header="Rotation" Minimum="0" Maximum="3" SpinButtonPlacementMode="Compact" Grid.Column="2" Grid.Row="4"/>
+            <TextBox Header="Data" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="3"/>
+            <!-- Add more elements here for rows 3-14 as needed, e.g., <TextBlock Text="More Content" Grid.Column="1" Grid.Row="3"/> -->
+        </Grid>
     </StackPanel>
 </Page>
