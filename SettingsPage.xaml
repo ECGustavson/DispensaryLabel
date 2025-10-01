@@ -25,6 +25,13 @@
                 <Button Content="Browse" Click="BrowseCsv_Click"/>
             </StackPanel>
 
+            <TextBlock Text="Fallback URL" FontWeight="Bold" />
+            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20" >
+                <TextBox x:Name="FallbackURLPath" PlaceholderText="Enter Master URL Here" Width="300"/>
+                <ToggleSwitch x:Name="EnforceFallbackToggle" OffContent="No" OnContent="Yes" Header="Enforce Master URL" Toggled="EnforceFallbackToggle_Toggled"/>
+            </StackPanel>
+
+
             <TextBlock Text="Printer Select" FontWeight="Bold"/>
             <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
                 <ComboBox x:Name="PrinterList" PlaceholderText="Select Printer" Width="200"/>

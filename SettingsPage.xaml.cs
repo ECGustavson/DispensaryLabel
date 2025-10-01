@@ -112,7 +112,12 @@ namespace DispensaryLabel
             settings.Values["CompanyAddress"] = CompanyAddress.Text;
             settings.Values["PrinterName"] = PrinterList.SelectedItem as string;
             settings.Values["ScaleComPort"] = ScaleComPorts.SelectedItem as string;
-            settings.Values["LabelHeight"] = spinboxLabelHeight.Value;
+
+            // Cast to int to match the loading type
+            settings.Values["LabelHeight"] = (int)spinboxLabelHeight.Value;
+            settings.Values["LabelWidth"] = (int)spinboxLabelWidth.Value;
+            settings.Values["LabelGap"] = (int)spinboxLabelGap.Value;
+
             // Csv token is saved during browse, no need here unless changed
             // Optionally show confirmation
         }
@@ -220,6 +225,11 @@ namespace DispensaryLabel
             };
             dialog.XamlRoot = this.XamlRoot;
             await dialog.ShowAsync();
+        }
+
+        private void EnforceFallbackToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 
