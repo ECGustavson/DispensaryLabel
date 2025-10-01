@@ -17,25 +17,25 @@
         </Grid.RowDefinitions>
 
         <!-- Strain selection -->
-        <StackPanel Grid.Row="0" Spacing="10">
+        <StackPanel Grid.Row="0" Spacing="10" Padding="20">
             <TextBlock Text="Select Strain" FontSize="18" FontWeight="Bold"/>
             <ComboBox x:Name="StrainComboBox" PlaceholderText="Choose a strain" Width="300" HorizontalAlignment="Left" SelectionChanged="StrainComboBox_SelectionChanged" TextSubmitted="StrainComboBox_TextSubmitted" IsEditable="true"/>
         </StackPanel>
 
         <!-- Weight input/display -->
-        <StackPanel Grid.Row="1" Spacing="10" Margin="0,20,0,0">
+        <StackPanel Grid.Row="1" Spacing="10" Padding="20" >
             <TextBlock Text="Weight (g)" FontSize="18" FontWeight="Bold"/>
             <TextBox x:Name="WeightTextBox" PlaceholderText="Enter or read weight" Width="300" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Print button -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,20,0,0">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="20,0,0,20" >
             <Button Name="btnPrint"  Content="Print Label" Click="PrintLabel_Click" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,20,0"/>
             <SymbolIcon Symbol="Cancel" VerticalAlignment="Center" Name="printIcon"/>
         </StackPanel>
 
         <!-- Strain details display -->
-        <StackPanel Grid.Row="3" Spacing="10" Margin="0,20,0,0">
+        <StackPanel Grid.Row="3" Spacing="10" Padding="20" >
             <TextBlock Text="Strain Details" FontSize="18" FontWeight="Bold"/>
             <StackPanel Orientation="Horizontal" Spacing="5">
                 <TextBlock Text="Type:" FontWeight="SemiBold"/>

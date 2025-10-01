@@ -22,6 +22,7 @@ namespace DispensaryLabel
         public int labelHeight;
         public int labelWidth;
         public int labelGap;
+        public int labelXPos;
         public SettingsPage()
         {
             this.InitializeComponent();
@@ -77,8 +78,11 @@ namespace DispensaryLabel
             spinboxLabelWidth.Value = labelWidth;
             labelGap = settings.Values["LabelGap"] as int? ?? 3;
             spinboxLabelGap.Value = labelGap;
-
-
+            labelXPos = settings.Values["LabelXPos"] as int? ?? 20;
+            spinboxMasterX.Value = labelXPos;
+            // Load new fallback URL settings
+            FallbackURLPath.Text = settings.Values["FallbackURL"] as string ?? "";
+            EnforceFallbackToggle.IsOn = settings.Values["EnforceFallback"] as bool? ?? false;
         }
 
         private async void BrowseCsv_Click(object sender, RoutedEventArgs e)
@@ -112,12 +116,13 @@ namespace DispensaryLabel
             settings.Values["CompanyAddress"] = CompanyAddress.Text;
             settings.Values["PrinterName"] = PrinterList.SelectedItem as string;
             settings.Values["ScaleComPort"] = ScaleComPorts.SelectedItem as string;
-
-            // Cast to int to match the loading type
             settings.Values["LabelHeight"] = (int)spinboxLabelHeight.Value;
             settings.Values["LabelWidth"] = (int)spinboxLabelWidth.Value;
             settings.Values["LabelGap"] = (int)spinboxLabelGap.Value;
-
+            settings.Values["LabelXPos"] = (int)spinboxMasterX.Value;
+            // Save new fallback URL settings
+            settings.Values["FallbackURL"] = FallbackURLPath.Text;
+            settings.Values["EnforceFallback"] = EnforceFallbackToggle.IsOn;
             // Csv token is saved during browse, no need here unless changed
             // Optionally show confirmation
         }
@@ -140,38 +145,37 @@ namespace DispensaryLabel
             }
         }
 
-        private async void TestPrinter_Click(object sender, RoutedEventArgs e)
+        // New event handler for enforce fallback toggle
+        private void EnforceFallbackToggle_Toggled(object sender, RoutedEventArgs e)
         {
-/*            string printerName = PrinterList.SelectedItem as string;
+            var toggle = sender as ToggleSwitch;
+            if (toggle == null) return;
+
+            var settings = ApplicationData.Current.LocalSettings;
+            settings.Values["EnforceFallback"] = toggle.IsOn;
+        }
+
+        private async void CalibratePrinter_Click(object sender, RoutedEventArgs e)
+        {
+            string printerName = PrinterList.SelectedItem as string;
             if (string.IsNullOrEmpty(printerName))
             {
                 await ShowDialog("Error", "Please select a printer.");
                 return;
             }
 
-            // Sample EZPL for test
-            StringBuilder ezpl = new StringBuilder();
-            ezpl.AppendLine("^Q203,0,0");
-            ezpl.AppendLine("^W406");
-            ezpl.AppendLine("^H10");
-            ezpl.AppendLine("^P1");
-            ezpl.AppendLine("^S4");
-            ezpl.AppendLine("^L");
-            ezpl.AppendLine("A0,10,10,1,1,0,0,Test Label");
-            ezpl.AppendLine("A0,10,50,1,1,0,0,From App");
-            ezpl.AppendLine("E");
-
-            string testCommand = ezpl.ToString();
+            // EZPL command for auto calibration
+            string calibrationCommand = "~S,SENSOR\r\n";
 
             try
             {
-                RawPrinterHelper.SendStringToPrinter(printerName, testCommand);
-                await ShowDialog("Success", "Printer test successful!");
+                RawPrinterHelper.SendStringToPrinter(printerName, calibrationCommand);
+                await ShowDialog("Success", "Calibration command sent successfully! Please check the printer for completion.");
             }
             catch (Exception ex)
             {
-                await ShowDialog("Error", $"Printer test failed: {ex.Message}");
-            }*/
+                await ShowDialog("Error", $"Calibration failed: {ex.Message}");
+            }
         }
 
         private async void TestScale_Click(object sender, RoutedEventArgs e)
@@ -225,11 +229,6 @@ namespace DispensaryLabel
             };
             dialog.XamlRoot = this.XamlRoot;
             await dialog.ShowAsync();
-        }
-
-        private void EnforceFallbackToggle_Toggled(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 

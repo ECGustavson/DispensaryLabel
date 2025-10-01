@@ -35,7 +35,7 @@
             <TextBlock Text="Printer Select" FontWeight="Bold"/>
             <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
                 <ComboBox x:Name="PrinterList" PlaceholderText="Select Printer" Width="200"/>
-                <Button Content="Test Printer" Click="TestPrinter_Click"/>
+                <Button Content="Calibrate Printer" Click="CalibratePrinter_Click"/>
             </StackPanel>
 
             <TextBlock Text="Scale COM Port" FontWeight="Bold"/>
@@ -91,6 +91,8 @@
                 <!-- Column 1 -->
                 <ColumnDefinition Width="Auto"/>
                 <!-- Column 2 -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Column 3 -->
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Printer Settings" FontWeight="Bold" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
@@ -98,6 +100,7 @@
             <NumberBox Header="Height (mm)" Name="spinboxLabelHeight" SpinButtonPlacementMode="Compact" Grid.Column="0" Grid.Row="2"/>
             <NumberBox Header="Width (mm)" Name="spinboxLabelWidth"  SpinButtonPlacementMode="Compact" Grid.Column="1" Grid.Row="2"/>
             <NumberBox Header="Gap (mm)" Name="spinboxLabelGap" SpinButtonPlacementMode="Compact" Grid.Column="2" Grid.Row="2"/>
+            <NumberBox Header="X Pos" Name="spinboxMasterX" SpinButtonPlacementMode="Compact" Grid.Column="3" Grid.Row="2"/>
 
             <TextBlock Text="Line 1 Data" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0"/>
             <NumberBox Header="X Pos" SpinButtonPlacementMode="Compact" Grid.Column="0" Grid.Row="4"/>

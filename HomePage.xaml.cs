@@ -121,6 +121,11 @@ namespace DispensaryLabel
             int labelHeight = (int)(settings.Values["LabelHeight"] ?? 75);
             int labelWidth = (int)(settings.Values["LabelWidth"] ?? 50);
             int labelGap = (int)(settings.Values["LabelGap"] ?? 3);
+            int labelXPos = (int)(settings.Values["LabelXPos"] ?? 18);
+
+            // Load new fallback URL settings
+            string fallbackUrl = settings.Values["FallbackURL"] as string ?? "";
+            bool enforceFallback = settings.Values["EnforceFallback"] as bool? ?? false;
 
             // Build label data
             string strainName = selectedStrain.Name;
@@ -129,11 +134,19 @@ namespace DispensaryLabel
             string type = selectedStrain.Type;
             string thc = selectedStrain.Thc;
             string hyperlink = selectedStrain.Hyperlink;
+
+            // Apply fallback logic
+            bool isInvalid = string.IsNullOrWhiteSpace(hyperlink) || !Uri.TryCreate(hyperlink, UriKind.Absolute, out _);
+            if (enforceFallback || (!enforceFallback && isInvalid))
+            {
+                hyperlink = fallbackUrl;
+            }
+
             // Generate EZPL command string (for 2"x1" label at 203 dpi, in mm)
             StringBuilder ezpl = new StringBuilder();
             ezpl.AppendLine($"^Q{labelHeight},{labelGap}"); // Label height, gap (adjust gap if no gaps/black marks: use 0 for continuous)
             ezpl.AppendLine($"^W{labelWidth}"); // Label width
-            ezpl.AppendLine("^H7"); // Heat  (adjust 1-30 if print is faint/blank)
+            ezpl.AppendLine("^H5"); // Heat  (adjust 1-30 if print is faint/blank)
             ezpl.AppendLine("^P1"); // Print 1 copy
             ezpl.AppendLine("^S2"); // Speed in ips
             ezpl.AppendLine("^AD"); // Set direct thermal mode (no ribbon); use ^AT if using ribbon/thermal transfer
@@ -146,16 +159,16 @@ namespace DispensaryLabel
             ezpl.AppendLine("~R255"); // Rotates and returns label position. Not clear on how this works. See EZPL manual
             ezpl.AppendLine("^XSET,ROTATION,0"); // Row Offset Adjustment
             ezpl.AppendLine("^L"); // Start format
-            ezpl.AppendLine($"AD,385,18,1,1,0,1E,THC-A HEMP FLOWER");
-            ezpl.AppendLine($"AB,339,18,1,1,0,1E,CONTAINS <0.3% DELTA-9 THC");
+            ezpl.AppendLine($"AD,385,{labelXPos},1,1,0,1E,THC-A HEMP FLOWER");
+            ezpl.AppendLine($"AB,339,{labelXPos},1,1,0,1E,CONTAINS <0.3% DELTA-9 THC");
 
-            ezpl.AppendLine($"AD,257,18,1,1,0,1E,{strainName.ToUpper()}"); // Strain name (positions in dots; scale from mm: e.g., 10 mm = 80 dots)
-            ezpl.AppendLine($"AC,208,18,1,1,0,1E,{type.ToUpper()} - {thc}% THC");
-            ezpl.AppendLine($"AC,160,18,1,1,0,1E,NET WEIGHT: {weight}g");
-            ezpl.AppendLine($"AB,77,18,1,1,0,1E,PACKAGED ON: {date} by {companyName}");
-            ezpl.AppendLine($"AB,37,18,1,1,0,1E,{companyAddress}");
+            ezpl.AppendLine($"AD,257,{labelXPos},1,1,0,1E,{strainName.ToUpper()}"); // Strain name (positions in dots; scale from mm: e.g., 10 mm = 80 dots)
+            ezpl.AppendLine($"AC,208,{labelXPos},1,1,0,1E,{type.ToUpper()} - {thc}% THC");
+            ezpl.AppendLine($"AC,160,{labelXPos},1,1,0,1E,NET WEIGHT: {weight}g");
+            ezpl.AppendLine($"AB,77,{labelXPos},1,1,0,1E,PACKAGED ON: {date} by {companyName}");
+            ezpl.AppendLine($"AB,37,{labelXPos},1,1,0,1E,{companyAddress}");
             // QR code for hyperlink (position in dots; syntax corrected: mode=0 (normal QR), error correction=M (medium), mask=0 (auto), mul=1, rotate=0)
-            ezpl.AppendLine($"W364,382,5,2,M,8,8,{hyperlink.Length},1"); // x=200 dots (~25 mm), y=80 dots; adjust position to fit
+            ezpl.AppendLine($"W310,402,5,2,M5,8,6,{hyperlink.Length},1"); // x=200 dots (~25 mm), y=80 dots; adjust position to fit
             ezpl.AppendLine($"{hyperlink}");
             ezpl.AppendLine("E"); // End and print
 
@@ -177,24 +190,24 @@ namespace DispensaryLabel
                 }
             }
 
-            /*    // Show mock-up dialog (always, or if not printed)
-                var mockContent = new StackPanel { Spacing = 5 };
-                mockContent.Children.Add(new TextBlock { Text = companyAddress });
-                mockContent.Children.Add(new TextBlock { Text = $"Strain: {strainName}" });
-                mockContent.Children.Add(new TextBlock { Text = $"Type: {type}" });Oka
-                mockContent.Children.Add(new TextBlock { Text = $"THC: {thc}%" });
-                mockContent.Children.Add(new TextBlock { Text = $"Weight: {weight}g" });
-                mockContent.Children.Add(new TextBlock { Text = $"Date: {date}" });
-                mockContent.Children.Add(new TextBlock { Text = $"Link: {hyperlink}" }); // QR mock as text
+            /*            // Show mock-up dialog (always, or if not printed)
+                        var mockContent = new StackPanel { Spacing = 5 };
+                        mockContent.Children.Add(new TextBlock { Text = companyAddress });
+                        mockContent.Children.Add(new TextBlock { Text = $"Strain: {strainName}" });
+                        mockContent.Children.Add(new TextBlock { Text = $"Type: {type}" });Oka
+                        mockContent.Children.Add(new TextBlock { Text = $"THC: {thc}%" });
+                        mockContent.Children.Add(new TextBlock { Text = $"Weight: {weight}g" });
+                        mockContent.Children.Add(new TextBlock { Text = $"Date: {date}" });
+                        mockContent.Children.Add(new TextBlock { Text = $"Link: {hyperlink}" }); // QR mock as text
 
-                var mockDialog = new ContentDialog
-                {
-                    Title = "Label Mock-Up",
-                    Content = mockContent,
-                    CloseButtonText = "OK"
-                };
-                mockDialog.XamlRoot = this.XamlRoot;
-                await mockDialog.ShowAsync();
+                        var mockDialog = new ContentDialog
+                        {
+                            Title = "Label Mock-Up",
+                            Content = mockContent,
+                            CloseButtonText = "OK"
+                        };
+                        mockDialog.XamlRoot = this.XamlRoot;
+                        await mockDialog.ShowAsync();
             */
             if (printed)
             {
